@@ -1,6 +1,10 @@
 import express from "express";
-import { createUser, updateUser } from "../modules/user/UserModule.js";
-import { hashPassword } from "../utils/bcrypt.js";
+import {
+  createUser,
+  getAUser,
+  updateUser,
+} from "../modules/user/UserModule.js";
+import { comparePassword, hashPassword } from "../utils/bcrypt.js";
 import { v4 as uuidv4 } from "uuid";
 import {
   createNewSession,
@@ -11,6 +15,7 @@ import {
   sendEmailVerifiedNotification,
 } from "../utils/nodemailer.js";
 import { responder } from "../middlewares/response.js";
+import { getJWTs } from "../utils/jwtHelper.js";
 
 const router = express.Router();
 
@@ -90,6 +95,56 @@ router.post("/verify-email", async (req, res, next) => {
     return responder.ERROR({
       res,
       message: "invalid!",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// login user
+router.post("/login", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (email && password) {
+      // get user by email
+      const user = await getAUser({ email });
+
+      console.log(user);
+
+      // if user is not active or has not verified their email
+      if (user?.status === "inactive") {
+        console.log(user.status);
+        return responder.ERROR({
+          message:
+            "Your account have nopt been verified. Please check your email and verify your account or contact admin",
+          res,
+        });
+      }
+
+      // verify password match
+      if (user?._id) {
+        const isMatched = comparePassword(password, user.password);
+
+        if (isMatched) {
+          // create and store token
+          const jwts = await getJWTs(email);
+
+          console.log(jwts);
+
+          // response tokens
+          return responder.SUCESS({
+            message: "success",
+            res,
+            jwts,
+          });
+        }
+      }
+    }
+
+    return responder.ERROR({
+      res,
+      message: "Invalid login details!",
     });
   } catch (error) {
     next(error);

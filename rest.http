@@ -1,0 +1,12 @@
+@rootAPI = http://localhost:8000/api/v1
+@userAPI = http://localhost:8000/api/v1/users
+
+# ======== user api
+###login user
+POST {{userAPI}}/login
+Content-Type: application/json
+
+{
+  "email":"q@q.com",
+  "password":"1!qQqq"
+}

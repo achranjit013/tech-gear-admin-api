@@ -1,8 +1,8 @@
 export const responder = {
-  SUCESS: ({ res, message, errorCode = 200 }) => {
+  SUCESS: ({ res, errorCode = 200, ...rest }) => {
     res.status(errorCode).json({
       status: "success",
-      message,
+      ...rest,
     });
   },
   ERROR: ({ res, message, errorCode = 500 }) => {

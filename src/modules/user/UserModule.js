@@ -6,9 +6,9 @@ export const createUser = (userObj) => {
 };
 
 // read user
-// get a user by their email
-export const getUserByEmail = (email) => {
-  return UserSchema.findOne({ email });
+// get a user by their filter (email)
+export const getAUser = (filter) => {
+  return UserSchema.findOne(filter);
 };
 
 // get a admin
