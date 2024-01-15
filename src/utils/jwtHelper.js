@@ -26,6 +26,16 @@ export const createRefreshJWT = async (email) => {
   return token;
 };
 
+// verify access jwt
+export const verifyAccessJWT = async (accessJWT) => {
+  return jwt.verify(accessJWT, process.env.JWT_ACCESS_TOKEN);
+};
+
+// verify refresh jwt
+export const verifyRefreshJWT = async (refreshJWT) => {
+  return jwt.verify(refreshJWT, process.env.JWT_REFRESH_TOKEN);
+};
+
 // get jwts
 export const getJWTs = async (email) => {
   return {

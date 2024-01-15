@@ -10,3 +10,8 @@ Content-Type: application/json
   "email":"q@q.com",
   "password":"1!qQqq"
 }
+
+
+###get user
+GET {{userAPI}}
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InFAcS5jb20iLCJpYXQiOjE3MDUyODA1MzgsImV4cCI6MTcwNTI4MTQzOH0.RXN7Ch1Tx9uTAt50LaqNXTNvgZ-HX2nZ77ToSMEpNb4

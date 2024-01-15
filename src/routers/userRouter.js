@@ -16,11 +16,13 @@ import {
 } from "../utils/nodemailer.js";
 import { responder } from "../middlewares/response.js";
 import { getJWTs } from "../utils/jwtHelper.js";
+import { newAdminValidation } from "../middlewares/joiValidation.js";
+import { adminAuth, refreshAuth } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
 // add user
-router.post("/", async (req, res, next) => {
+router.post("/", newAdminValidation, async (req, res, next) => {
   try {
     // encrypt the password
     console.log("i am here");
@@ -145,6 +147,38 @@ router.post("/login", async (req, res, next) => {
     return responder.ERROR({
       res,
       message: "Invalid login details!",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// get user
+router.get("/", adminAuth, (req, res, next) => {
+  try {
+    responder.SUCESS({
+      res,
+      message: "user info",
+      user: req.userInfo,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// get access jwt
+router.get("/get-accessjwt", refreshAuth);
+
+// logout
+router.post("/logout", async (req, res, next) => {
+  try {
+    const { accessJWT, _id } = req.body;
+    accessJWT && (await deleteSession({ token: accessJWT }));
+    await updateUser({ _id }, { refreshJWT: "" });
+
+    responder.SUCESS({
+      res,
+      message: "sucess logout",
     });
   } catch (error) {
     next(error);
