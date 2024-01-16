@@ -11,13 +11,19 @@ import {
   deleteSession,
 } from "../modules/session/SessionSchema.js";
 import {
+  passwordUpdatedNotificationEmail,
   sendEmailVerificationLinkTemplate,
   sendEmailVerifiedNotification,
+  sendOTPEmail,
 } from "../utils/nodemailer.js";
 import { responder } from "../middlewares/response.js";
 import { getJWTs } from "../utils/jwtHelper.js";
-import { newAdminValidation } from "../middlewares/joiValidation.js";
+import {
+  newAdminValidation,
+  resetPasswordValidation,
+} from "../middlewares/joiValidation.js";
 import { adminAuth, refreshAuth } from "../middlewares/authMiddleware.js";
+import { otpGenerator } from "../utils/randomGenerator.js";
 
 const router = express.Router();
 
@@ -179,6 +185,80 @@ router.post("/logout", async (req, res, next) => {
     responder.SUCESS({
       res,
       message: "sucess logout",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// otp request
+router.post("/request-otp", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    console.log(email);
+
+    // check if valid email
+    if (email.includes("@")) {
+      const user = await getAUser({ email });
+      // check if user exist
+      if (user?._id) {
+        // create unique otp
+        const otp = otpGenerator();
+
+        // store otp and email in the session table
+        const otpSession = await createNewSession({
+          token: otp,
+          associate: email,
+        });
+
+        // check if stored
+        if (otpSession?._id) {
+          // send email to user
+          sendOTPEmail({ email, fname: user.fname, otp });
+          // response user
+        }
+      }
+    }
+    responder.SUCESS({
+      res,
+      message:
+        "If your email is found in our system, we will send an OTP to yor email. Please check your inbox/spam.",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// passwrod reset
+router.patch("/", resetPasswordValidation, async (req, res, next) => {
+  try {
+    const { email, password, otp } = req.body;
+    console.log(email);
+
+    // check if otp is valid
+    const sessionOtp = await deleteSession({ token: otp, associate: email });
+
+    if (sessionOtp?._id) {
+      // encrypt the password
+      const hashPass = hashPassword(password);
+
+      // update password in user table
+      const user = await updateUser({ email }, { password: hashPass });
+
+      if (user?._id) {
+        // send email verification
+        passwordUpdatedNotificationEmail({ email, fname: user.fname });
+
+        responder.SUCESS({
+          res,
+          message: "Your password has been updated. You may login now!",
+        });
+      }
+    }
+
+    responder.ERROR({
+      res,
+      message: "Invalid token or ...!",
     });
   } catch (error) {
     next(error);
