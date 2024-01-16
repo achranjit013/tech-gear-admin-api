@@ -26,4 +26,9 @@ export const updateUser = (filter, update) => {
   return UserSchema.findOneAndUpdate(filter, update, { new: true });
 };
 
+// get only password
+export const getAdminPasswordById = (_id) => {
+  return UserSchema.findById(_id, { password: 1 });
+};
+
 // delete user

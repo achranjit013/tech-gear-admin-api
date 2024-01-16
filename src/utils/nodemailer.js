@@ -144,7 +144,7 @@ export const passwordUpdatedNotificationEmail = ({ email, fname }) => {
     <br/>
     <br/>
     
-    <p>Your password has been updated. You may login now!</p>
+    <p>Your password has been updated!</p>
     
     <br/>
     <br/>

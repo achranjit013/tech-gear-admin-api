@@ -2,6 +2,7 @@ import express from "express";
 import {
   createUser,
   getAUser,
+  getAdminPasswordById,
   updateUser,
 } from "../modules/user/UserModule.js";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
@@ -264,5 +265,63 @@ router.patch("/", resetPasswordValidation, async (req, res, next) => {
     next(error);
   }
 });
+
+// password update
+router.patch("/password-update", adminAuth, async (req, res, next) => {
+  try {
+    // get user info
+    const user = req.userInfo;
+    const { oldPassword, newPassword } = req.body;
+    console.log(user);
+    console.log(oldPassword + " and " + newPassword);
+
+    // get hash password from db
+    const { password } = await getAdminPasswordById(user?._id);
+    console.log("first");
+    console.log(password);
+
+    // match the old password with the new one
+    const isMatched = comparePassword(oldPassword, password);
+    console.log(isMatched);
+
+    if (isMatched) {
+      // encrypt new password
+      const newHashPass = hashPassword(newPassword);
+      console.log(newHashPass);
+
+      // update user table with new password
+      const updatedUser = await updateUser(
+        { _id: user?._id },
+        { password: newHashPass }
+      );
+
+      console.log("second");
+      console.log(updatedUser);
+
+      if (updatedUser?._id) {
+        // send email notification
+        passwordUpdatedNotificationEmail({
+          email: updatedUser.email,
+          fname: updatedUser.fname,
+        });
+
+        return responder.SUCESS({
+          res,
+          message: "Your password has been updated successfully!",
+        });
+      }
+    }
+
+    responder.ERROR({
+      res,
+      message:
+        "Unable to update your password. Please try again later or contact admin",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// profile update
 
 export default router;
