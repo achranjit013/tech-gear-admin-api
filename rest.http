@@ -1,5 +1,6 @@
 @rootAPI = http://localhost:8000/api/v1
 @userAPI = http://localhost:8000/api/v1/users
+@categoryAPI = {{rootAPI}}/categories
 
 # ======== user api
 ###login user
@@ -23,3 +24,30 @@ Content-Type: application/json
 {
   "email": "q@q.com"
 }
+
+# ===== category
+
+### post
+POST {{categoryAPI}}
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InFAcS5jb20iLCJpYXQiOjE3MDUzNzgyOTcsImV4cCI6MTcwNTM3OTE5N30.QsLMCTm2LzosNjqZ8RWdUoiKLa1QeE7EWJHBXs9sT4Y
+
+{
+  "title":"mobile phones"
+}
+
+###get
+GET {{categoryAPI}}
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InFAcS5jb20iLCJpYXQiOjE3MDUzNzgyOTcsImV4cCI6MTcwNTM3OTE5N30.QsLMCTm2LzosNjqZ8RWdUoiKLa1QeE7EWJHBXs9sT4Y
+
+###put
+PUT {{categoryAPI}}/65a6016153829062df176f88
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InFAcS5jb20iLCJpYXQiOjE3MDUzNzgyOTcsImV4cCI6MTcwNTM3OTE5N30.QsLMCTm2LzosNjqZ8RWdUoiKLa1QeE7EWJHBXs9sT4Y
+
+{
+  "_id":"65a6016153829062df176f88",
+  "status":"active",
+  "title":"monitor"
+}
+
+

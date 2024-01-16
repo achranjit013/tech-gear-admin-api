@@ -18,6 +18,9 @@ app.use(morgan("tiny"));
 // api endpoints
 import userRouter from "./src/routers/userRouter.js";
 app.use("/api/v1/users", userRouter);
+import categoryRouter from "./src/routers/categoryRouter.js";
+import { adminAuth } from "./src/middlewares/authMiddleware.js";
+app.use("/api/v1/categories", adminAuth, categoryRouter);
 
 app.get("/", (req, res) => {
   res.json({
