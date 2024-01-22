@@ -2,10 +2,15 @@ import express from "express";
 import multer from "multer";
 import { responder } from "../middlewares/response.js";
 import slugify from "slugify";
-import { newProductValidation } from "../middlewares/joiValidation.js";
+import {
+  newProductValidation,
+  updateProductValidation,
+} from "../middlewares/joiValidation.js";
 import {
   createProduct,
+  getAProduct,
   getProducts,
+  updateAProduct,
 } from "../modules/product/ProductModule.js";
 
 const router = express.Router();
@@ -73,9 +78,11 @@ router.post(
 );
 
 // get products
-router.get("/", async (req, res, next) => {
+router.get("/:_id?", async (req, res, next) => {
   try {
-    const products = await getProducts();
+    const { _id } = req.params;
+
+    const products = _id ? await getAProduct({ _id }) : await getProducts();
 
     responder.SUCESS({
       res,
@@ -87,37 +94,47 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-// update category
-// router.put("/", async (req, res, next) => {
-//   try {
-//     const { _id, title, status } = req.body;
+// update product
+router.put(
+  "/",
+  upload.array("newImages", 5),
+  updateProductValidation,
+  async (req, res, next) => {
+    try {
+      // handle delete image
+      const { imgToDelete } = req.body;
 
-//     console.log(_id, title, status);
+      // remove image from system (laptop) - homework
+      if (imgToDelete.length) {
+        req.body.images = req.body.images
+          .split(",")
+          .filter((url) => !imgToDelete.includes(url));
+      }
 
-//     if (_id && title && status) {
-//       const cat = await updateCategory(
-//         { _id },
-//         {
-//           title,
-//           status,
-//         }
-//       );
+      // get the file path where it was uploaded and store in db
+      if (req.files?.length) {
+        const newImgs = req.files.map((item) => item.path.slice(6));
+        req.body.images = [req.body.images, ...newImgs];
+      }
 
-//       if (cat?._id) {
-//         return responder.SUCESS({
-//           res,
-//           message: "category has been updated",
-//         });
-//       }
-//     }
-//     responder.ERROR({
-//       res,
-//       message: "cannot update",
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+      // insert into db
+      const { _id, ...rest } = req.body;
+      const product = await updateAProduct({ _id }, rest);
+
+      product?._id
+        ? responder.SUCESS({
+            res,
+            message: "product has been updated.",
+          })
+        : responder.ERROR({
+            res,
+            message: "product has not been updated.",
+          });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // delete category
 // router.delete("/:_id", async (req, res, next) => {

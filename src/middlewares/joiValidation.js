@@ -63,3 +63,24 @@ export const newProductValidation = (req, res, next) => {
 
   joiValidator({ schema, req, res, next });
 };
+
+// product validation
+export const updateProductValidation = (req, res, next) => {
+  const schema = joi.object({
+    _id: SHORTSTRREQ,
+    status: SHORTSTRREQ,
+    thumbnail: LONGSTRREQ,
+    name: SHORTSTRREQ,
+    parentCatId: SHORTSTRREQ,
+    price: SHORTNUMREQ,
+    salesPrice: SHORTNUM,
+    salesStartDate: SHORTSTR,
+    salesEndDate: SHORTSTR,
+    qty: SHORTNUMREQ,
+    description: LONGSTRREQ,
+    images: SHORTSTRREQ,
+    imgToDelete: LONGSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
