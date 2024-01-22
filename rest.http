@@ -1,6 +1,7 @@
 @rootAPI = http://localhost:8000/api/v1
 @userAPI = http://localhost:8000/api/v1/users
 @categoryAPI = {{rootAPI}}/categories
+@productAPI = {{rootAPI}}/products
 
 # ======== user api
 ###login user
@@ -48,6 +49,21 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InFAcS5jb20iLCJp
   "_id":"65a6016153829062df176f88",
   "status":"active",
   "title":"monitor"
+}
+
+### post
+POST {{productAPI}}
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InFAcS5jb20iLCJpYXQiOjE3MDU4ODAxNjksImV4cCI6MTcwNTg4MTA2OX0.rU7cdNz0u40mAoouCRaD5OnDPT9exRSf1j5LQTXTnmg
+
+{
+  "name": "mac pro 15",
+  "parentCatId": "65a6016153829062df176f88",
+  "sku": "MAC-15-PRO",
+  "price": "2500",
+  "salesPrice": "0",
+  "qty": "100",
+  "description": "Lorem Ipsum, sometimes referred to as 'lipsum', is the placeholder text used in design when creating content. It helps designers plan out where the content will sit, without needing to wait for the content to be written and approved. It originally comes from a Latin text, but to today's reader, it's seen as gibberish."
 }
 
 

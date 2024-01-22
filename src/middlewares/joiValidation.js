@@ -3,6 +3,8 @@ import joi from "joi";
 // constants
 const SHORTSTR = joi.string().max(100).allow(null, "");
 const SHORTSTRREQ = SHORTSTR.required();
+const SHORTNUM = joi.string().max(100).allow(null, "");
+const SHORTNUMREQ = SHORTNUM.required();
 const LONGSTR = joi.string().max(5000).allow(null, "");
 const LONGSTRREQ = LONGSTR.required();
 const EMAIL = joi.string().email({ minDomainSegments: 2 }).max(100);
@@ -40,6 +42,23 @@ export const resetPasswordValidation = (req, res, next) => {
     otp: SHORTSTRREQ,
     email: SHORTSTRREQ,
     password: SHORTSTR,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// product validation
+export const newProductValidation = (req, res, next) => {
+  const schema = joi.object({
+    name: SHORTSTRREQ,
+    parentCatId: SHORTSTRREQ,
+    sku: SHORTSTRREQ,
+    price: SHORTNUMREQ,
+    salesPrice: SHORTNUM,
+    salesStartDate: SHORTSTR,
+    salesEndDate: SHORTSTR,
+    qty: SHORTNUMREQ,
+    description: LONGSTRREQ,
   });
 
   joiValidator({ schema, req, res, next });

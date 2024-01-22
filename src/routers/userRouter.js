@@ -28,13 +28,14 @@ import { otpGenerator } from "../utils/randomGenerator.js";
 
 const router = express.Router();
 
-// add user
+// add user (admin)
 router.post("/", newAdminValidation, async (req, res, next) => {
   try {
     // encrypt the password
     console.log("i am here");
     const { password } = req.body;
     req.body.password = hashPassword(password);
+    // req.body.role = "admin";
 
     // creating new user
     const user = await createUser(req.body);
