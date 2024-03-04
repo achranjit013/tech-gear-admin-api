@@ -22,9 +22,11 @@ app.use(express.static(path.join(__dirname, "/public")));
 import userRouter from "./src/routers/userRouter.js";
 app.use("/api/v1/users", userRouter);
 import categoryRouter from "./src/routers/categoryRouter.js";
+import subCategoryRouter from "./src/routers/subCategoryRouter.js";
 import productRouter from "./src/routers/productRouter.js";
 import { adminAuth } from "./src/middlewares/authMiddleware.js";
 app.use("/api/v1/categories", adminAuth, categoryRouter);
+app.use("/api/v1/sub-categories", adminAuth, subCategoryRouter);
 app.use("/api/v1/products", adminAuth, productRouter);
 
 app.get("/", (req, res) => {

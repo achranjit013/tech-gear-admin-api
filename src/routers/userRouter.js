@@ -32,10 +32,8 @@ const router = express.Router();
 router.post("/", newAdminValidation, async (req, res, next) => {
   try {
     // encrypt the password
-    console.log("i am here");
     const { password } = req.body;
     req.body.password = hashPassword(password);
-    // req.body.role = "admin";
 
     // creating new user
     const user = await createUser(req.body);
@@ -120,11 +118,8 @@ router.post("/login", async (req, res, next) => {
       // get user by email
       const user = await getAUser({ email });
 
-      console.log(user);
-
       // if user is not active or has not verified their email
       if (user?.status === "inactive") {
-        console.log(user.status);
         return responder.ERROR({
           message:
             "Your account have nopt been verified. Please check your email and verify your account or contact admin",
@@ -139,8 +134,6 @@ router.post("/login", async (req, res, next) => {
         if (isMatched) {
           // create and store token
           const jwts = await getJWTs(email);
-
-          console.log(jwts);
 
           // response tokens
           return responder.SUCESS({
@@ -197,7 +190,6 @@ router.post("/logout", async (req, res, next) => {
 router.post("/request-otp", async (req, res, next) => {
   try {
     const { email } = req.body;
-    console.log(email);
 
     // check if valid email
     if (email.includes("@")) {
@@ -235,7 +227,6 @@ router.post("/request-otp", async (req, res, next) => {
 router.patch("/", resetPasswordValidation, async (req, res, next) => {
   try {
     const { email, password, otp } = req.body;
-    console.log(email);
 
     // check if otp is valid
     const sessionOtp = await deleteSession({ token: otp, associate: email });
@@ -273,31 +264,22 @@ router.patch("/password-update", adminAuth, async (req, res, next) => {
     // get user info
     const user = req.userInfo;
     const { oldPassword, newPassword } = req.body;
-    console.log(user);
-    console.log(oldPassword + " and " + newPassword);
 
     // get hash password from db
     const { password } = await getAdminPasswordById(user?._id);
-    console.log("first");
-    console.log(password);
 
     // match the old password with the new one
     const isMatched = comparePassword(oldPassword, password);
-    console.log(isMatched);
 
     if (isMatched) {
       // encrypt new password
       const newHashPass = hashPassword(newPassword);
-      console.log(newHashPass);
 
       // update user table with new password
       const updatedUser = await updateUser(
         { _id: user?._id },
         { password: newHashPass }
       );
-
-      console.log("second");
-      console.log(updatedUser);
 
       if (updatedUser?._id) {
         // send email notification

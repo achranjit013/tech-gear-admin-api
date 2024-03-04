@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 // end multer config
 
-// create new category
+// create new product
 router.post(
   "/",
   upload.array("images", 5),
@@ -53,6 +53,45 @@ router.post(
         lower: false, // convert to lower case, defaults to `false`
         trim: true, // trim leading and trailing replacement chars, defaults to `true`
       });
+
+      // const { newVal, ...rest } = req.body;
+
+      // req.body.variants = [
+      //   {
+      //     size: "s",
+      //     qty: 10,
+      //     price: 120,
+      //     salesPrice: "",
+      //     salesPriceStart: "",
+      //     salesPriceEnd: "",
+      //   },
+      //   {
+      //     size: "m",
+      //     qty: 6,
+      //     price: 120,
+      //     salesPrice: "",
+      //     salesPriceStart: "",
+      //     salesPriceEnd: "",
+      //   },
+      //   {
+      //     size: "l",
+      //     qty: 18,
+      //     price: 120,
+      //     salesPrice: "",
+      //     salesPriceStart: "",
+      //     salesPriceEnd: "",
+      //   },
+      // ];
+
+      // req.body.variants = JSON.parse(req.body.variants);
+      // req.body.variants = JSON.parse(JSON.stringify(req.body.variants)).map(
+      //   (item, i) => {
+      //     return JSON.parse(item);
+      //   }
+      // );
+      // const xyz = abc.map((item, i) => {
+      //   return JSON.parse(item);
+      // });
 
       // insert into db
       const product = await createProduct(req.body);
@@ -140,8 +179,6 @@ router.put(
 // router.delete("/:_id", async (req, res, next) => {
 //   try {
 //     const { _id } = req.params;
-
-//     console.log(_id);
 
 //     const cat = await deleteCategory(_id);
 

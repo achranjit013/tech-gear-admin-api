@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const categorySchema = new mongoose.Schema(
+const subCategorySchema = new mongoose.Schema(
   {
     status: {
       type: String,
@@ -16,10 +16,15 @@ const categorySchema = new mongoose.Schema(
       index: 1,
       required: true,
     },
+    categoryId: {
+      type: mongoose.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export default mongoose.model("Category", categorySchema);
+export default mongoose.model("SubCategory", subCategorySchema);

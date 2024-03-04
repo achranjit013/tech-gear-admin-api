@@ -1,4 +1,5 @@
 import joi from "joi";
+import { responder } from "./response.js";
 
 // constants
 const SHORTSTR = joi.string().max(100).allow(null, "");
@@ -9,6 +10,16 @@ const LONGSTR = joi.string().max(5000).allow(null, "");
 const LONGSTRREQ = LONGSTR.required();
 const EMAIL = joi.string().email({ minDomainSegments: 2 }).max(100);
 const EMAILREQ = EMAIL.required();
+const VARIANTSREQ = joi.array().items(
+  joi.object().keys({
+    size: SHORTSTRREQ,
+    qty: SHORTNUMREQ,
+    price: SHORTNUMREQ,
+    salesPrice: SHORTNUM,
+    salesStartDate: SHORTSTR,
+    salesEndDate: SHORTSTR,
+  })
+);
 
 const joiValidator = ({ schema, req, res, next }) => {
   try {
@@ -47,24 +58,28 @@ export const resetPasswordValidation = (req, res, next) => {
   joiValidator({ schema, req, res, next });
 };
 
-// product validation
+// add new product validation
 export const newProductValidation = (req, res, next) => {
+  const { variants, ...rest } = JSON.parse(JSON.stringify(req.body));
+
+  req.body = rest;
+  req.body.variants = variants.map((item, i) => {
+    return JSON.parse(item);
+  });
+
   const schema = joi.object({
     name: SHORTSTRREQ,
     parentCatId: SHORTSTRREQ,
     sku: SHORTSTRREQ,
-    price: SHORTNUMREQ,
-    salesPrice: SHORTNUM,
-    salesStartDate: SHORTSTR,
-    salesEndDate: SHORTSTR,
-    qty: SHORTNUMREQ,
+    basePrice: SHORTNUMREQ,
+    variants: VARIANTSREQ,
     description: LONGSTRREQ,
   });
 
   joiValidator({ schema, req, res, next });
 };
 
-// product validation
+// update product validation
 export const updateProductValidation = (req, res, next) => {
   const schema = joi.object({
     _id: SHORTSTRREQ,
@@ -80,6 +95,48 @@ export const updateProductValidation = (req, res, next) => {
     description: LONGSTRREQ,
     images: SHORTSTRREQ,
     imgToDelete: LONGSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// add new category validation
+export const newCategoryValidation = (req, res, next) => {
+  const schema = joi.object({
+    title: SHORTSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// update category validation
+export const updateCategoryValidation = (req, res, next) => {
+  const schema = joi.object({
+    _id: SHORTSTRREQ,
+    title: SHORTSTRREQ,
+    status: SHORTSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// add new sub category validation
+export const newSubCategoryValidation = (req, res, next) => {
+  const schema = joi.object({
+    title: SHORTSTRREQ,
+    categoryId: SHORTSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// update sub category validation
+export const updateSubCategoryValidation = (req, res, next) => {
+  const schema = joi.object({
+    _id: SHORTSTRREQ,
+    title: SHORTSTRREQ,
+    status: SHORTSTRREQ,
+    categoryId: SHORTSTRREQ,
   });
 
   joiValidator({ schema, req, res, next });
