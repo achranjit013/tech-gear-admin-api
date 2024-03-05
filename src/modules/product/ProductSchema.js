@@ -4,14 +4,20 @@ const productSchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      default: "inactive",
+      default: "active",
     },
     name: {
       type: String,
       required: true,
     },
-    parentCatId: {
-      type: String,
+    categoryId: {
+      type: mongoose.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+    subCategoryId: {
+      type: mongoose.Types.ObjectId,
+      ref: "SubCategory",
       required: true,
     },
     slug: {
@@ -36,7 +42,7 @@ const productSchema = new mongoose.Schema(
     },
     thumbnail: {
       type: String,
-      // required: true,
+      required: true,
     },
     images: [
       {

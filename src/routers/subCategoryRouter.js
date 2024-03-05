@@ -15,6 +15,7 @@ import {
   newSubCategoryValidation,
   updateSubCategoryValidation,
 } from "../middlewares/joiValidation.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -54,9 +55,19 @@ router.post("/", newSubCategoryValidation, async (req, res, next) => {
 });
 
 // get sub categories
-router.get("/", async (req, res, next) => {
+router.get("/:categoryId?", async (req, res, next) => {
   try {
-    const subCategories = await getSubCategories();
+    let filterCriteria = {};
+    const { categoryId } = req.params;
+
+    if (categoryId) {
+      filterCriteria = {
+        categoryId: new mongoose.Types.ObjectId(categoryId),
+        status: "active",
+      };
+    }
+
+    const subCategories = await getSubCategories(filterCriteria);
 
     responder.SUCESS({
       res,

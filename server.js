@@ -1,9 +1,17 @@
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
+import { v2 as cloudinary } from "cloudinary";
 import cors from "cors";
 import path from "path";
 import { connectDB } from "./src/config/dbConfig.js";
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: "dsdz0nmkk",
+  api_key: "579674782944718",
+  api_secret: "0aD19YCs58LbcZ0fQHHIb3KnfoU",
+});
 
 const app = express();
 const PORT = process.env.PORT || 8000;

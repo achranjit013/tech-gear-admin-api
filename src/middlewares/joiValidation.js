@@ -69,7 +69,8 @@ export const newProductValidation = (req, res, next) => {
 
   const schema = joi.object({
     name: SHORTSTRREQ,
-    parentCatId: SHORTSTRREQ,
+    categoryId: SHORTSTRREQ,
+    subCategoryId: SHORTSTRREQ,
     sku: SHORTSTRREQ,
     basePrice: SHORTNUMREQ,
     variants: VARIANTSREQ,
@@ -81,20 +82,26 @@ export const newProductValidation = (req, res, next) => {
 
 // update product validation
 export const updateProductValidation = (req, res, next) => {
+  const { variants, ...rest } = JSON.parse(JSON.stringify(req.body));
+
+  req.body = rest;
+  req.body.variants = variants.map((item, i) => {
+    return JSON.parse(item);
+  });
+
   const schema = joi.object({
     _id: SHORTSTRREQ,
     status: SHORTSTRREQ,
-    thumbnail: LONGSTRREQ,
     name: SHORTSTRREQ,
-    parentCatId: SHORTSTRREQ,
-    price: SHORTNUMREQ,
-    salesPrice: SHORTNUM,
-    salesStartDate: SHORTSTR,
-    salesEndDate: SHORTSTR,
-    qty: SHORTNUMREQ,
+    thumbnail: LONGSTRREQ,
+    categoryId: SHORTSTRREQ,
+    subCategoryId: SHORTSTRREQ,
+    sku: SHORTSTRREQ,
+    basePrice: SHORTNUMREQ,
+    variants: VARIANTSREQ,
     description: LONGSTRREQ,
-    images: SHORTSTRREQ,
-    imgToDelete: LONGSTRREQ,
+    images: LONGSTRREQ,
+    imgToDelete: LONGSTR,
   });
 
   joiValidator({ schema, req, res, next });

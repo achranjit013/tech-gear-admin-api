@@ -1,5 +1,6 @@
 import express from "express";
 import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
 import { responder } from "../middlewares/response.js";
 import slugify from "slugify";
 import {
@@ -8,6 +9,7 @@ import {
 } from "../middlewares/joiValidation.js";
 import {
   createProduct,
+  deleteSelectedProduct,
   getAProduct,
   getProducts,
   updateAProduct,
@@ -15,24 +17,24 @@ import {
 
 const router = express.Router();
 
-// multer config
-const imgFolderPath = "public/img/product";
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let error = null;
-    // all sort of test and run cb func
-    cb(error, imgFolderPath);
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    // Add any desired file filtering logic here
+    cb(null, true);
   },
-  filename: (req, file, cb) => {
-    let error = null;
-    // construct the unique file name
-    const fullFileName = Date.now() + "-" + file.originalname;
-    cb(error, fullFileName);
-  },
+  limits: { files: 5 }, // Limit to 5 files per request
 });
-
-const upload = multer({ storage });
 // end multer config
+
+// Function to extract public ID from image URL
+// used while deleting images from cloudinary
+const getImagePublicId = (imageUrl) => {
+  const parts = imageUrl.split("/");
+  const filename = parts[parts.length - 1];
+  const publicId = filename.split(".")[0];
+  return publicId;
+};
 
 // create new product
 router.post(
@@ -41,12 +43,33 @@ router.post(
   newProductValidation,
   async (req, res, next) => {
     try {
-      // get the file path where it was uploaded and store in db
-      if (req.files?.length) {
-        const newImgs = req.files.map((item) => item.path.slice(6));
-        req.body.images = newImgs;
-        req.body.thumbnail = newImgs[0];
-      }
+      const images = req.files;
+
+      const uploadPromises = images.map(
+        (image) =>
+          new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { resource_type: "auto" },
+              (error, result) => {
+                if (result) {
+                  resolve(result);
+                } else {
+                  reject(error);
+                }
+              }
+            );
+
+            stream.write(image.buffer);
+            stream.end();
+          })
+      );
+
+      const uploadedImages = await Promise.all(uploadPromises);
+
+      const imageUrls = uploadedImages.map((result) => result.secure_url);
+
+      req.body.images = imageUrls;
+      req.body.thumbnail = imageUrls[0];
 
       // create slug
       req.body.slug = slugify(req.body.name, {
@@ -54,56 +77,19 @@ router.post(
         trim: true, // trim leading and trailing replacement chars, defaults to `true`
       });
 
-      // const { newVal, ...rest } = req.body;
-
-      // req.body.variants = [
-      //   {
-      //     size: "s",
-      //     qty: 10,
-      //     price: 120,
-      //     salesPrice: "",
-      //     salesPriceStart: "",
-      //     salesPriceEnd: "",
-      //   },
-      //   {
-      //     size: "m",
-      //     qty: 6,
-      //     price: 120,
-      //     salesPrice: "",
-      //     salesPriceStart: "",
-      //     salesPriceEnd: "",
-      //   },
-      //   {
-      //     size: "l",
-      //     qty: 18,
-      //     price: 120,
-      //     salesPrice: "",
-      //     salesPriceStart: "",
-      //     salesPriceEnd: "",
-      //   },
-      // ];
-
-      // req.body.variants = JSON.parse(req.body.variants);
-      // req.body.variants = JSON.parse(JSON.stringify(req.body.variants)).map(
-      //   (item, i) => {
-      //     return JSON.parse(item);
-      //   }
-      // );
-      // const xyz = abc.map((item, i) => {
-      //   return JSON.parse(item);
-      // });
-
       // insert into db
       const product = await createProduct(req.body);
 
       product?._id
         ? responder.SUCESS({
             res,
-            message: "new product has been added.",
+            message:
+              "Congratulations, a new product has been added successfully.",
           })
         : responder.ERROR({
             res,
-            message: "product has not been added.",
+            message:
+              "Sorry, the product cannot be added. Please try again later.",
           });
     } catch (error) {
       if (error.message.includes("E11000 duplicate key error collection")) {
@@ -143,58 +129,108 @@ router.put(
       // handle delete image
       const { imgToDelete } = req.body;
 
-      // remove image from system (laptop) - homework
-      if (imgToDelete.length) {
+      // remove image
+      if (imgToDelete?.length) {
         req.body.images = req.body.images
           .split(",")
           .filter((url) => !imgToDelete.includes(url));
+
+        // delete the images from cloudinary
+        const deletePromises = imgToDelete.split(",").map(
+          (imageUrl) =>
+            new Promise((resolve, reject) => {
+              const publicId = getImagePublicId(imageUrl);
+              cloudinary.uploader.destroy(publicId, (error, result) => {
+                if (result) {
+                  resolve(result);
+                } else {
+                  reject(error);
+                }
+              });
+            })
+        );
+
+        // delete the images from cloudinary
+        await Promise.all(deletePromises);
       }
 
       // get the file path where it was uploaded and store in db
       if (req.files?.length) {
-        const newImgs = req.files.map((item) => item.path.slice(6));
-        req.body.images = [req.body.images, ...newImgs];
+        const newImgs = req.files;
+
+        const uploadPromises = newImgs.map(
+          (image) =>
+            new Promise((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                { resource_type: "auto" },
+                (error, result) => {
+                  if (result) {
+                    resolve(result);
+                  } else {
+                    reject(error);
+                  }
+                }
+              );
+
+              stream.write(image.buffer);
+              stream.end();
+            })
+        );
+
+        const uploadedImages = await Promise.all(uploadPromises);
+
+        const imageUrls = uploadedImages.map((result) => result.secure_url);
+
+        req.body.images = [...req.body.images, ...imageUrls];
       }
 
       // insert into db
       const { _id, ...rest } = req.body;
+
       const product = await updateAProduct({ _id }, rest);
 
       product?._id
         ? responder.SUCESS({
             res,
-            message: "product has been updated.",
+            message:
+              "Congratulations, the product has been updated successfully.",
           })
         : responder.ERROR({
             res,
-            message: "product has not been updated.",
+            message:
+              "Sorry, the product cannot be updated. Please try again later.",
           });
     } catch (error) {
+      if (error.message.includes("E11000 duplicate key error collection")) {
+        error.message =
+          "Slug already exist, try changing the title and try again";
+        error.errorCode = 500;
+      }
       next(error);
     }
   }
 );
 
-// delete category
-// router.delete("/:_id", async (req, res, next) => {
-//   try {
-//     const { _id } = req.params;
+// delete prouct
+router.delete("/:_id", async (req, res, next) => {
+  try {
+    const { _id } = req.params;
 
-//     const cat = await deleteCategory(_id);
+    const product = await deleteSelectedProduct(_id);
 
-//     if (cat?._id) {
-//       return responder.SUCESS({
-//         res,
-//         message: "category has been deleted",
-//       });
-//     }
-//     responder.ERROR({
-//       res,
-//       message: "cannot delete",
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+    if (product?._id) {
+      return responder.SUCESS({
+        res,
+        message: "Congratulations, the product has been deleted successfully.",
+      });
+    }
+    responder.ERROR({
+      res,
+      message: "Sorry, the product cannot be deleted. Please try again later.",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

@@ -7,8 +7,11 @@ export const createSubCategory = (obj) => {
 
 // read sub category
 // get sub categories
-export const getSubCategories = () => {
+export const getSubCategories = (filterCriteria) => {
   return SubCategorySchema.aggregate([
+    {
+      $match: filterCriteria,
+    },
     {
       $group: {
         _id: "$categoryId",

@@ -27,6 +27,6 @@ export const updateAProduct = (filter, update) => {
 };
 
 // delete product
-export const deleteAProduct = (_id) => {
-  return ProductSchema.findOneAndDelete(_id);
+export const deleteSelectedProduct = (_id) => {
+  return ProductSchema.findOneAndDelete({ _id });
 };
