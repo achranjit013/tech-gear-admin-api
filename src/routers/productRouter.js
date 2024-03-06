@@ -14,6 +14,7 @@ import {
   getProducts,
   updateAProduct,
 } from "../modules/product/ProductModule.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -105,9 +106,22 @@ router.post(
 // get products
 router.get("/:_id?", async (req, res, next) => {
   try {
-    const { _id } = req.params;
+    let { _id } = req.params;
 
-    const products = _id ? await getAProduct({ _id }) : await getProducts();
+    let filterCriteria = {};
+
+    if (_id?.includes("subcategoryId")) {
+      const subcategoryId = _id.slice(13);
+      _id = null;
+      filterCriteria = {
+        subCategoryId: new mongoose.Types.ObjectId(subcategoryId),
+        status: "active",
+      };
+    }
+
+    const products = _id
+      ? await getAProduct({ _id })
+      : await getProducts(filterCriteria);
 
     responder.SUCESS({
       res,

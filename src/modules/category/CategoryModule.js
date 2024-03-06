@@ -17,6 +17,6 @@ export const updateCategory = (filter, update) => {
 };
 
 // delete category
-export const deleteCategory = (_id) => {
-  return CategorySchema.findOneAndDelete(_id);
+export const deleteSelectedCategory = (_id) => {
+  return CategorySchema.findOneAndDelete({ _id });
 };

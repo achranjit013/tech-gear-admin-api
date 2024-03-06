@@ -3,6 +3,7 @@ import { responder } from "../middlewares/response.js";
 import slugify from "slugify";
 import {
   createCategory,
+  deleteSelectedCategory,
   getCategories,
   updateCategory,
 } from "../modules/category/CategoryModule.js";
@@ -101,17 +102,17 @@ router.delete("/:_id", async (req, res, next) => {
   try {
     const { _id } = req.params;
 
-    const cat = await deleteCategory(_id);
+    const cat = await deleteSelectedCategory(_id);
 
     if (cat?._id) {
       return responder.SUCESS({
         res,
-        message: "category has been deleted",
+        message: "Congratulations, the category has been deleted successfully.",
       });
     }
     responder.ERROR({
       res,
-      message: "cannot delete",
+      message: "Sorry, the category cannot be deleted. Please try again later.",
     });
   } catch (error) {
     next(error);

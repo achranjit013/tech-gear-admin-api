@@ -7,8 +7,8 @@ export const createProduct = (productObj) => {
 
 // read product
 // get products
-export const getProducts = () => {
-  return ProductSchema.find();
+export const getProducts = (filterCriteria) => {
+  return ProductSchema.find(filterCriteria);
 };
 
 // get products
