@@ -3,6 +3,7 @@ import {
   createUser,
   getAUser,
   getAdminPasswordById,
+  getAllUsers,
   updateUser,
 } from "../modules/user/UserModule.js";
 import { comparePassword, hashPassword } from "../utils/bcrypt.js";
@@ -154,13 +155,16 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-// get user
-router.get("/", adminAuth, (req, res, next) => {
+// get admin
+router.get("/", adminAuth, async (req, res, next) => {
   try {
+    const findResult = await getAllUsers({ role: "user", status: "active" });
+
     responder.SUCESS({
       res,
       message: "user info",
       user: req.userInfo,
+      findResult,
     });
   } catch (error) {
     next(error);

@@ -16,10 +16,15 @@ export const getOneAdmin = (filter) => {
   return UserSchema.findOne(filter);
 };
 
-// get all users who are not admin (i.e. students)
-// export const getAllStudents = (filter) => {
-//   return UserSchema.find(filter);
-// };
+// get all users who are not admin (i.e. customers)
+export const getAllUsers = (filter) => {
+  const projection = {
+    __v: 0,
+    updatedAt: 0,
+    refreshJWT: 0,
+  };
+  return UserSchema.find(filter, projection).sort({ createdAt: -1 });
+};
 
 // update user
 export const updateUser = (filter, update) => {
