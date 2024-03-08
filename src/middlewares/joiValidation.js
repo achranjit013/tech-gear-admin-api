@@ -20,6 +20,19 @@ const VARIANTSREQ = joi.array().items(
     salesEndDate: SHORTSTR,
   })
 );
+const CARTSREQ = joi.array().items(
+  joi.object().keys({
+    cartId: SHORTSTRREQ,
+    dispatchedQty: SHORTNUMREQ,
+    cartRefund: SHORTNUMREQ,
+    totalPrice: SHORTNUMREQ,
+    productName: SHORTSTRREQ,
+    orderedQty: SHORTNUMREQ,
+    orderedSize: SHORTSTRREQ,
+    thumbnail: LONGSTRREQ,
+  })
+);
+const TRACKREQ = joi.array().items(SHORTSTRREQ);
 
 const joiValidator = ({ schema, req, res, next }) => {
   try {
@@ -144,6 +157,23 @@ export const updateSubCategoryValidation = (req, res, next) => {
     title: SHORTSTRREQ,
     status: SHORTSTRREQ,
     categoryId: SHORTSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// update order status validation
+export const updateOrderValidation = async (req, res, next) => {
+  const schema = joi.object({
+    _id: SHORTSTRREQ,
+    status: SHORTSTRREQ,
+    name: SHORTSTRREQ,
+    email: EMAILREQ,
+    shippingStreet: SHORTSTRREQ,
+    shippingState: SHORTSTRREQ,
+    shippingZip: SHORTSTRREQ,
+    trackingNumber: TRACKREQ,
+    carts: CARTSREQ,
   });
 
   joiValidator({ schema, req, res, next });

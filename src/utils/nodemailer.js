@@ -162,3 +162,139 @@ export const passwordUpdatedNotificationEmail = ({ email, fname }) => {
 
   emailSender(body);
 };
+
+export const sendOrderDispatchVerificationEmailNotification = ({
+  toEmail,
+  name,
+  shippingStreet,
+  shippingState,
+  shippingZip,
+  carts,
+}) => {
+  const body = {
+    from: `Tech Gear 👻 <${process.env.SMPT_USER}>`, // sender address
+    to: toEmail, // list of receivers
+    subject: "Your order has been shipped!", // Subject line
+    text: `Hello ${name},\n\nYour order has been shipped. While you eagerly await the arrival of your order, please feel free to explore our wide range of products by visiting our page.\n\nFollowing items has been shipped:\n
+   
+    ${carts
+      .map((item) =>
+        item.dispatchedQty > 0 || item.dispatchedQty > "0"
+          ? `${item.productName} / ${item.orderedSize} X ${item.dispatchedQty}`
+          : ``
+      )
+      .join("\n\n")}
+
+      ${
+        carts.reduce(
+          (accumulator, { cartRefund }) => accumulator + cartRefund,
+          0
+        ) > 0
+          ? `\n\nFollowing items has been missing and we will be shipping them soon or refund you the remaining balance.\n`
+          : ``
+      }
+   
+      ${carts
+        .map((item) =>
+          item.cartRefund > 0 || item.cartRefund > "0"
+            ? `${item.productName} / ${item.orderedSize} X ${
+                (Number(item.cartRefund) * Number(item.orderedQty)) /
+                Number(item.totalPrice)
+              }`
+            : `All items has been shipped for ${item.productName} / ${item.orderedSize}`
+        )
+        .join("\n\n")}
+    
+    Your order will be shipped to following address:\n${shippingStreet}, ${shippingState}, ${shippingZip}\n\n.Happy shopping! 🛍️\n\n---------\nRegards,\nTech Gear`, // plain text body
+    html: `<p>Hello ${name},</p>
+    
+    <p>Your order has been shipped. While you eagerly await the arrival of your order, please feel free to explore our wide range of products by visiting our page.</p>
+
+    <p>Following items has been shipped:</p>
+
+    <ul>
+    ${carts
+      .map(
+        (item) => `
+        ${
+          item.dispatchedQty > 0 || item.dispatchedQty > "0"
+            ? `<li>
+              <img
+                src=${item.thumbnail}
+                alt=${item.productName}
+                width="60"
+                height="60"
+              />
+              <p>
+                ${item.productName} / ${item.orderedSize} X ${item.dispatchedQty}
+              </p>
+            </li>`
+            : `<li></li>`
+        }
+        
+      `
+      )
+      .join("")}
+    </ul>
+
+    ${
+      carts.reduce(
+        (accumulator, { cartRefund }) => accumulator + cartRefund,
+        0
+      ) > 0
+        ? `<p>Following items has been missing and we will be shipping them soon or refund you the remaining balance.</p>`
+        : ``
+    }
+
+    <ul>
+    ${carts
+      .map(
+        (item) => `
+        ${
+          item.cartRefund > 0 || item.cartRefund > "0"
+            ? `<li>
+              <img
+                src=${item.thumbnail}
+                alt=${item.productName}
+                width="60"
+                height="60"
+              />
+              <p>
+                ${item.productName} / ${item.orderedSize} X
+                ${
+                  (Number(item.cartRefund) * Number(item.orderedQty)) /
+                  Number(item.totalPrice)
+                }
+              </p>
+            </li>`
+            : `<li>
+              All items has been shipped for ${item.productName} / ${item.orderedSize}
+            </li>`
+        }
+        
+      `
+      )
+      .join("")}
+    </ul>
+
+    <p>Your order will be shipped to following address:\n ${shippingStreet}, ${shippingState}, ${shippingZip}</p>
+    
+    <br/>
+
+    <p>Happy shopping! 🛍️</p>
+
+    <br/>
+    <br/>
+    
+    ---------
+    
+    <p>
+      Regards,
+      <br/>
+      Tech Gear
+      <br/>
+    </p>`, // html body
+  };
+
+  emailSender(body);
+};

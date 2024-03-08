@@ -17,6 +17,17 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 const __dirname = path.resolve();
 
+// connection to remote database;
+import { connectToDatabase } from "./src/config/databaseConnection.js";
+const uri = process.env.MONGO_URL;
+(async () => {
+  try {
+    await connectToDatabase(uri);
+  } catch (error) {
+    console.error("Error starting the server:", error);
+  }
+})();
+
 // db connect
 connectDB();
 
@@ -32,10 +43,12 @@ app.use("/api/v1/users", userRouter);
 import categoryRouter from "./src/routers/categoryRouter.js";
 import subCategoryRouter from "./src/routers/subCategoryRouter.js";
 import productRouter from "./src/routers/productRouter.js";
+import orderRouter from "./src/routers/orderRouter.js";
 import { adminAuth } from "./src/middlewares/authMiddleware.js";
 app.use("/api/v1/categories", adminAuth, categoryRouter);
 app.use("/api/v1/sub-categories", adminAuth, subCategoryRouter);
 app.use("/api/v1/products", adminAuth, productRouter);
+app.use("/api/v1/orders", adminAuth, orderRouter);
 
 app.get("/", (req, res) => {
   res.json({
