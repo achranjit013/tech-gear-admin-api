@@ -37,7 +37,7 @@ router.post("/", newAdminValidation, async (req, res, next) => {
     req.body.password = hashPassword(password);
 
     // creating new user
-    const user = await createUser(req.body);
+    const user = await createUser({ ...req.body, role: "admin" });
 
     // if user is created, create unique url and email that to user to verify
     if (user?._id) {
@@ -56,9 +56,15 @@ router.post("/", newAdminValidation, async (req, res, next) => {
     user?._id
       ? responder.SUCESS({
           res,
-          message: "check your inbox/spam to verify your email",
+          message:
+            "Email verification link has been sent to the provided email. Please ask the user to check their inbox/spam folder.",
         })
-      : responder.ERROR({ res, message: "unable to create", errorCode: 200 });
+      : responder.ERROR({
+          res,
+          message:
+            "Sorry, we are unable to create the user at the moment. Please try again later.",
+          errorCode: 200,
+        });
   } catch (error) {
     if (error.message.includes("E11000 duplicate key error collection")) {
       error.errorCode = 200;
@@ -158,13 +164,16 @@ router.post("/login", async (req, res, next) => {
 // get admin
 router.get("/", adminAuth, async (req, res, next) => {
   try {
-    const findResult = await getAllUsers({ role: "user", status: "active" });
+    const findCustomers = await getAllUsers({ role: "user", status: "active" });
+
+    const findAdmins = await getAllUsers({ role: "admin", status: "active" });
 
     responder.SUCESS({
       res,
       message: "user info",
       user: req.userInfo,
-      findResult,
+      findCustomers,
+      findAdmins,
     });
   } catch (error) {
     next(error);
