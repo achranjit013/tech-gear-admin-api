@@ -14,6 +14,7 @@ import {
 } from "../modules/session/SessionSchema.js";
 import {
   passwordUpdatedNotificationEmail,
+  profileUpdatedNotificationEmail,
   sendEmailVerificationLinkTemplate,
   sendEmailVerifiedNotification,
   sendOTPEmail,
@@ -23,6 +24,8 @@ import { getJWTs } from "../utils/jwtHelper.js";
 import {
   newAdminValidation,
   resetPasswordValidation,
+  updateAdminEmailValidation,
+  updateAdminProfileValidation,
 } from "../middlewares/joiValidation.js";
 import { adminAuth, refreshAuth } from "../middlewares/authMiddleware.js";
 import { otpGenerator } from "../utils/randomGenerator.js";
@@ -128,8 +131,9 @@ router.post("/login", async (req, res, next) => {
       // if user is not active or has not verified their email
       if (user?.status === "inactive") {
         return responder.ERROR({
+          errorCode: 200,
           message:
-            "Your account have nopt been verified. Please check your email and verify your account or contact admin",
+            "Your account has not been verified. Please check your email and verify your account to login or contact admin",
           res,
         });
       }
@@ -303,15 +307,24 @@ router.patch("/password-update", adminAuth, async (req, res, next) => {
 
         return responder.SUCESS({
           res,
-          message: "Your password has been updated successfully!",
+          message:
+            "Congratulations, your password has been updated successfully!",
         });
       }
+    } else {
+      responder.ERROR({
+        errorCode: 200,
+        res,
+        message:
+          "Sorry, we are unable to update your password. Please verify your old password and try again.",
+      });
     }
 
     responder.ERROR({
+      errorCode: 200,
       res,
       message:
-        "Unable to update your password. Please try again later or contact admin",
+        "Sorry, we are unable to update your password. Please try again later.",
     });
   } catch (error) {
     next(error);
@@ -319,5 +332,117 @@ router.patch("/password-update", adminAuth, async (req, res, next) => {
 });
 
 // profile update
+router.patch(
+  "/profile-update",
+  updateAdminProfileValidation,
+  adminAuth,
+  async (req, res, next) => {
+    try {
+      // get user info
+      const user = req.userInfo;
+
+      const result = await getAUser({ email: user?.email });
+
+      const { password, ...rest } = req.body;
+
+      // match the password received from frontend with the one stored in databse table
+      const isMatched = comparePassword(password, result?.password);
+
+      if (isMatched) {
+        // update user table with new password
+        const updatedUser = await updateUser({ _id: user?._id }, rest);
+
+        if (updatedUser?._id) {
+          // send email notification
+          profileUpdatedNotificationEmail({
+            email: updatedUser.email,
+            fname: updatedUser.fname,
+          });
+
+          return responder.SUCESS({
+            res,
+            message:
+              "Congratulations, your profile has been updated successfully!",
+          });
+        }
+      }
+
+      responder.ERROR({
+        errorCode: 200,
+        res,
+        message:
+          "Sorry, we are unable to update your profile. Please try again later.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// profile update
+router.patch(
+  "/email-update",
+  updateAdminEmailValidation,
+  adminAuth,
+  async (req, res, next) => {
+    try {
+      // get user info
+      const user = req.userInfo;
+
+      const result = await getAUser({ email: user?.email });
+
+      const { password, email } = req.body;
+
+      // match the password received from frontend with the one stored in databse table
+      const isMatched = comparePassword(password, result?.password);
+
+      if (isMatched) {
+        // update user table with new password
+        const updatedUser = await updateUser(
+          { _id: user?._id },
+          { email, status: "inactive" }
+        );
+
+        // if email is updated, create unique url and email that to the user to verify
+        if (updatedUser?._id) {
+          const c = uuidv4(); //this must be stored in db
+          const token = await createNewSession({
+            token: c,
+            associate: updatedUser.email,
+          });
+
+          const url = `${process.env.CLIENT_ROOT_DOMAIN}/verify-email?e=${updatedUser.email}&c=${c}`;
+
+          // send new email
+          sendEmailVerificationLinkTemplate({
+            email: updatedUser.email,
+            url,
+            fname: updatedUser.fname,
+          });
+
+          return responder.SUCESS({
+            res,
+            message:
+              "Congratulations, your email has been updated successfully!",
+          });
+        }
+      }
+
+      responder.ERROR({
+        errorCode: 200,
+        res,
+        message:
+          "Sorry, we are unable to update your email. Please try again later.",
+      });
+    } catch (error) {
+      if (error.message.includes("E11000 duplicate key error collection")) {
+        error.errorCode = 200;
+        error.message =
+          "There is another user with this email. Please login or use another email to update!";
+      }
+      next(error);
+    }
+  }
+);
 
 export default router;

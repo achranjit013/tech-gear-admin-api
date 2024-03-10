@@ -163,6 +163,38 @@ export const passwordUpdatedNotificationEmail = ({ email, fname }) => {
   emailSender(body);
 };
 
+// password updated notification
+export const profileUpdatedNotificationEmail = ({ email, fname }) => {
+  const body = {
+    from: `"Tech Gear 👻" <${process.env.SMPT_USER}>`, // sender address
+    to: email, // list of receivers
+    subject: "your profile has been updated!", // Subject line
+    text: `Hello ${fname}, your profile has been updated. You may now see your updated profile in the screen.\n\n Regards,\nTech Gear`, // plain text body
+    html: `<p>Hello ${fname}</p>
+
+    <br/>
+    <br/>
+    
+    <p>Your profile has been updated.</p>
+    <p>You may now see your updated profile in the screen.</p>
+    
+    <br/>
+    <br/>
+    <br/>
+    
+    ---------
+    
+    <p>
+      Regards,
+      <br/>
+      Tech Gear
+      <br/>
+    </p>`, // html body
+  };
+
+  emailSender(body);
+};
+
 export const sendOrderDispatchVerificationEmailNotification = ({
   toEmail,
   name,

@@ -26,7 +26,7 @@ export const getAllUsers = (filter) => {
   return UserSchema.find(filter, projection).sort({ createdAt: -1 });
 };
 
-// update user
+// update user (admin)
 export const updateUser = (filter, update) => {
   return UserSchema.findOneAndUpdate(filter, update, { new: true });
 };

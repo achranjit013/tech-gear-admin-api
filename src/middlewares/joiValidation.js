@@ -48,6 +48,7 @@ const joiValidator = ({ schema, req, res, next }) => {
   }
 };
 
+// create new admin validation
 export const newAdminValidation = (req, res, next) => {
   const schema = joi.object({
     fname: SHORTSTRREQ,
@@ -61,6 +62,30 @@ export const newAdminValidation = (req, res, next) => {
   joiValidator({ schema, req, res, next });
 };
 
+// update admin profile validation
+export const updateAdminProfileValidation = (req, res, next) => {
+  const schema = joi.object({
+    fname: SHORTSTRREQ,
+    lname: SHORTSTRREQ,
+    address: SHORTSTR,
+    phone: SHORTSTR,
+    password: SHORTSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// update admin email validation
+export const updateAdminEmailValidation = (req, res, next) => {
+  const schema = joi.object({
+    email: EMAILREQ,
+    password: SHORTSTRREQ,
+  });
+
+  joiValidator({ schema, req, res, next });
+};
+
+// admin reset password validation
 export const resetPasswordValidation = (req, res, next) => {
   const schema = joi.object({
     otp: SHORTSTRREQ,
