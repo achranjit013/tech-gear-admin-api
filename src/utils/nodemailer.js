@@ -25,10 +25,10 @@ const emailSender = async (obj) => {
 
 export const sendEmailVerificationLinkTemplate = ({ email, fname, url }) => {
   const body = {
-    from: `"Tech Gear 👻" <${process.env.SMPT_USER}>`, // sender address
+    from: `"Variété Vortéx 👻" <${process.env.SMPT_USER}>`, // sender address
     to: email, // list of receivers
     subject: "Follow the instruction to verify your account!", // Subject line
-    text: `Hello ${fname}, please follow the link to verify your account ${url}\n\n Regards,\nTech Gear`, // plain text body
+    text: `Hello ${fname}, please follow the link to verify your account ${url}\n\n Regards,\nVariété Vortéx`, // plain text body
     html: `<p>Hello ${fname}</p>
 
     <br/>
@@ -57,7 +57,7 @@ export const sendEmailVerificationLinkTemplate = ({ email, fname, url }) => {
     <p>
       Regards,
       <br/>
-      Tech Gear
+      Variété Vortéx
       <br/>
     </p>`, // html body
   };
@@ -67,10 +67,10 @@ export const sendEmailVerificationLinkTemplate = ({ email, fname, url }) => {
 
 export const sendEmailVerifiedNotification = ({ email, fname }) => {
   const body = {
-    from: `"Tech Gear 👻" <${process.env.SMPT_USER}>`, // sender address
+    from: `"Variété Vortéx 👻" <${process.env.SMPT_USER}>`, // sender address
     to: email, // list of receivers
     subject: "your email has been verified!", // Subject line
-    text: `Hello ${fname}, your email has been verified. you may login now\n\n Regards,\nTech Gear`, // plain text body
+    text: `Hello ${fname}, your email has been verified. you may login now\n\n Regards,\nVariété Vortéx`, // plain text body
     html: `<p>Hello ${fname}</p>
 
     <br/>
@@ -93,7 +93,7 @@ export const sendEmailVerifiedNotification = ({ email, fname }) => {
     <p>
       Regards,
       <br/>
-      Tech Gear
+      Variété Vortéx
       <br/>
     </p>`, // html body
   };
@@ -104,10 +104,10 @@ export const sendEmailVerifiedNotification = ({ email, fname }) => {
 // otp
 export const sendOTPEmail = ({ email, fname, otp }) => {
   const body = {
-    from: `"Tech Gear 👻" <${process.env.SMPT_USER}>`, // sender address
+    from: `"Variété Vortéx 👻" <${process.env.SMPT_USER}>`, // sender address
     to: email, // list of receivers
     subject: "your OTP for password reset!", // Subject line
-    text: `Hello ${fname}, here is your OTP ${otp}. You may reset your password now.\n\n Regards,\nTech Gear`, // plain text body
+    text: `Hello ${fname}, here is your OTP ${otp}. You may reset your password now.\n\n Regards,\nVariété Vortéx`, // plain text body
     html: `<p>Hello ${fname}</p>
 
     <br/>
@@ -124,7 +124,7 @@ export const sendOTPEmail = ({ email, fname, otp }) => {
     <p>
       Regards,
       <br/>
-      Tech Gear
+      Variété Vortéx
       <br/>
     </p>`, // html body
   };
@@ -135,10 +135,10 @@ export const sendOTPEmail = ({ email, fname, otp }) => {
 // password updated notification
 export const passwordUpdatedNotificationEmail = ({ email, fname }) => {
   const body = {
-    from: `"Tech Gear 👻" <${process.env.SMPT_USER}>`, // sender address
+    from: `"Variété Vortéx 👻" <${process.env.SMPT_USER}>`, // sender address
     to: email, // list of receivers
     subject: "your password has been updated!", // Subject line
-    text: `Hello ${fname}, your password has been updated. You may login now.\n\n Regards,\nTech Gear`, // plain text body
+    text: `Hello ${fname}, your password has been updated. You may login now.\n\n Regards,\nVariété Vortéx`, // plain text body
     html: `<p>Hello ${fname}</p>
 
     <br/>
@@ -155,7 +155,7 @@ export const passwordUpdatedNotificationEmail = ({ email, fname }) => {
     <p>
       Regards,
       <br/>
-      Tech Gear
+      Variété Vortéx
       <br/>
     </p>`, // html body
   };
@@ -166,10 +166,10 @@ export const passwordUpdatedNotificationEmail = ({ email, fname }) => {
 // password updated notification
 export const profileUpdatedNotificationEmail = ({ email, fname }) => {
   const body = {
-    from: `"Tech Gear 👻" <${process.env.SMPT_USER}>`, // sender address
+    from: `"Variété Vortéx 👻" <${process.env.SMPT_USER}>`, // sender address
     to: email, // list of receivers
     subject: "your profile has been updated!", // Subject line
-    text: `Hello ${fname}, your profile has been updated. You may now see your updated profile in the screen.\n\n Regards,\nTech Gear`, // plain text body
+    text: `Hello ${fname}, your profile has been updated. You may now see your updated profile in the screen.\n\n Regards,\nVariété Vortéx`, // plain text body
     html: `<p>Hello ${fname}</p>
 
     <br/>
@@ -187,7 +187,7 @@ export const profileUpdatedNotificationEmail = ({ email, fname }) => {
     <p>
       Regards,
       <br/>
-      Tech Gear
+      Variété Vortéx
       <br/>
     </p>`, // html body
   };
@@ -204,7 +204,7 @@ export const sendOrderDispatchVerificationEmailNotification = ({
   carts,
 }) => {
   const body = {
-    from: `Tech Gear 👻 <${process.env.SMPT_USER}>`, // sender address
+    from: `Variété Vortéx 👻 <${process.env.SMPT_USER}>`, // sender address
     to: toEmail, // list of receivers
     subject: "Your order has been shipped!", // Subject line
     text: `Hello ${name},\n\nYour order has been shipped. While you eagerly await the arrival of your order, please feel free to explore our wide range of products by visiting our page.\n\nFollowing items has been shipped:\n
@@ -237,7 +237,7 @@ export const sendOrderDispatchVerificationEmailNotification = ({
         )
         .join("\n\n")}
     
-    Your order will be shipped to following address:\n${shippingStreet}, ${shippingState}, ${shippingZip}\n\n.Happy shopping! 🛍️\n\n---------\nRegards,\nTech Gear`, // plain text body
+    Your order will be shipped to following address:\n${shippingStreet}, ${shippingState}, ${shippingZip}\n\n.Happy shopping! 🛍️\n\n---------\nRegards,\nVariété Vortéx`, // plain text body
     html: `<p>Hello ${name},</p>
     
     <p>Your order has been shipped. While you eagerly await the arrival of your order, please feel free to explore our wide range of products by visiting our page.</p>
@@ -323,7 +323,7 @@ export const sendOrderDispatchVerificationEmailNotification = ({
     <p>
       Regards,
       <br/>
-      Tech Gear
+      Variété Vortéx
       <br/>
     </p>`, // html body
   };
