@@ -95,8 +95,15 @@ router.post(
       if (error.message.includes("E11000 duplicate key error collection")) {
         error.message =
           "Slug already exist, try changing the title and try again";
-        error.errorCode = 500;
+        error.errorCode = 200;
       }
+
+      if (error.message.includes("Too many files")) {
+        error.message =
+          "Too many files, please add the product with 5 images at max.";
+        error.errorCode = 200;
+      }
+
       next(error);
     }
   }
@@ -194,8 +201,14 @@ router.put(
 
         const imageUrls = uploadedImages.map((result) => result.secure_url);
 
-        req.body.images = [...req.body.images, ...imageUrls];
+        req.body.images = [...req.body.images.split(","), ...imageUrls];
       }
+
+      // create slug for updated name
+      req.body.slug = slugify(req.body.name, {
+        lower: false, // convert to lower case, defaults to `false`
+        trim: true, // trim leading and trailing replacement chars, defaults to `true`
+      });
 
       // insert into db
       const { _id, ...rest } = req.body;

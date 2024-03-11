@@ -13,6 +13,19 @@ Content-Type: application/json
   "password":"1!qQqq"
 }
 
+###admin signup
+POST {{userAPI}}
+Content-Type: application/json
+
+{
+  "email":"admin@admin.com",
+  "password":"1!qQqq",
+  "fname": "admin",
+  "lname": "test",
+  "address": "Hurstville",
+  "phone": "0987654321"
+}
+
 
 ###get user
 GET {{userAPI}}

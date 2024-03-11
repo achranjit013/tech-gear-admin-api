@@ -36,13 +36,13 @@ router.post("/", newCategoryValidation, async (req, res, next) => {
       : responder.ERROR({
           res,
           message:
-            "Sorry, unable to add a new category. Please try again later!",
+            "Sorry, we are unable to add a new category. Please try again later!",
         });
   } catch (error) {
     if (error.message.includes("E11000 duplicate key error collection")) {
       error.message =
         "Slug already exist, please try again with a different title for the category!";
-      error.errorCode = 500;
+      error.errorCode = 200;
     }
     next(error);
   }
